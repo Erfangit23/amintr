@@ -1,0 +1,37 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Sensitive — never commit real credentials
+src/config.json
+
+# Session files (Telegram auth)
+*.session
+*.session-journal
+
+# Logs and runtime
+src/logs/
+src/trade_journal.jsonl
+*.log
+
+# Test / temp files
+_test_*.txt
+_test.py
+test_parsers.py
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+.DS_Store
+Desktop.ini

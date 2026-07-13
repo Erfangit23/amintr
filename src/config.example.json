@@ -1,0 +1,27 @@
+{
+  "tg_api_id": 0,
+  "tg_api_hash": "",
+  "tg_phone": "",
+  "tg_channels": [
+    "@gold_alicxzos110",
+    "@Xsd_Gold_SignaIs1"
+  ],
+  "mt5_path": "C:\\Program Files\\MetaTrader 5\\terminal64.exe",
+  "mt5_server": "",
+  "mt5_login": 0,
+  "mt5_password": "",
+  "mt5_symbol": "XAUUSD",
+  "lot_size": 0.01,
+  "max_sl_pips": 150,
+  "max_sl_pips_daily": 500,
+  "tp_target": 2,
+  "magic_number": 20260701,
+  "slippage": 30,
+  "deviation": 20,
+  "mgmt_bot_token": "",
+  "mgmt_admin_ids": [],
+  "mgmt_password": "Amin123",
+  "bot_active": true,
+  "daily_sl_hit": 0.0,
+  "daily_sl_reset_date": ""
+}

@@ -1,0 +1,190 @@
+============================================================
+  XAUUSD AutoTrader — Complete VPS Setup Guide
+============================================================
+
+This guide walks through EXACTLY what to install and configure
+on a fresh Windows VPS to run the bot 24/7, auto-restart on crash,
+and auto-start on VPS reboot.
+
+
+── 1. WHAT YOU NEED ON THE VPS ──────────────────────────
+
+[a] Python 3.11+
+    Download: https://www.python.org/downloads/
+    ★ During install, CHECK "Add Python to PATH"
+
+[b] MetaTrader 5 (from your broker)
+    Install normally. Login once with your account to verify.
+    ★ Leave MT5 RUNNING in the background (the bot uses its terminal)
+
+[c] Telegram Account (already on the VPS)
+    The channels you want to monitor must be JOINED by your
+    Telegram account. You can use Telegram Desktop on the VPS
+    to join them once, then the bot will listen via API.
+
+[d] A Telegram Bot Token (for management/reports)
+    1. Message @BotFather on Telegram
+    2. Send: /newbot
+    3. Pick a name (e.g. "XAUUSD Manager")
+    4. Pick a username (e.g. "xauusd_manager_bot")
+    5. Copy the token — it looks like:
+       1234567890:ABCdefGHIjklMNOpqrsTUVwxyz
+
+
+── 2. GET YOUR TELEGRAM API CREDENTIALS ──────────────────
+
+1. Go to https://my.telegram.org/apps
+2. Log in with the SAME phone number used on the VPS Telegram
+3. Click "Create new application"
+4. Fill in: App title = "AutoTrader", Short name = "autotrader"
+5. Copy:
+   - api_id  (a number, e.g. 12345678)
+   - api_hash (a string, e.g. "a1b2c3d4e5f6...")
+
+── 3. GET YOUR USER ID FOR THE MANAGEMENT BOT ────────────
+
+1. Message @userinfobot on Telegram
+2. It replies with your numeric ID, e.g. 987654321
+3. Save this — goes in config.json as mgmt_admin_ids
+
+
+── 4. COPY THE PROJECT TO THE VPS ────────────────────────
+
+Copy the ENTIRE "xauusd-autotrader" folder to your VPS.
+Example path:
+    C:\Users\Administrator\Desktop\xauusd-autotrader\
+
+(Any folder works — just remember the path for later steps.)
+
+
+── 5. EDIT CONFIGURATION ─────────────────────────────────
+
+Open: xauusd-autotrader\src\config.json
+
+Fill in EVERY field marked with ***:
+
+{
+  "tg_api_id": 12345678,              ← from step 2
+  "tg_api_hash": "a1b2c3...",         ← from step 2
+  "tg_phone": "+98912...",            ← your phone (with country code)
+  "tg_channels": [
+    "@gold_alicxzos110",
+    "@Xsd_Gold_SignaIs1"
+  ],
+  "mt5_path": "C:\\Program Files\\MetaTrader 5\\terminal64.exe",
+  "mt5_server": "YourBroker-Server",  ← MT5 server name (shows in MT5 login)
+  "mt5_login": 12345678,              ← MT5 account number
+  "mt5_password": "your_mt5_pass",    ← MT5 password
+  "mt5_symbol": "XAUUSD",
+  "lot_size": 0.01,
+  "max_sl_pips": 150,
+  "max_sl_pips_daily": 500,
+  "tp_target": 2,
+  "magic_number": 20260701,
+  "mgmt_bot_token": "1234567890:ABC...",  ← from @BotFather
+  "mgmt_admin_ids": [987654321],           ← your Telegram user ID
+  "mgmt_password": "Amin123",
+  "bot_active": true
+}
+
+
+── 6. FIRST-TIME SETUP (DO ONCE) ─────────────────────────
+
+1. Make sure MT5 is OPEN and LOGGED IN
+2. Open the xauusd-autotrader folder
+3. Double-click: setup.bat
+   → Creates Python venv + installs all depedencies (~2 min)
+4. Double-click: run.bat
+   → First time: Telegram will send a login CODE to your phone
+   → Enter that code in the terminal window
+   → After that, a session file is saved — no more codes needed
+
+
+── 7. MAKE IT AUTO-START & RUN 24/7 ──────────────────────
+
+WAY A — Windows Task Scheduler (RECOMMENDED)
+─────────────────────────────────────────────────
+
+1. Press Win+R, type: taskschd.msc, press Enter
+2. Click "Create Task" (NOT "Create Basic Task")
+3. General tab:
+   - Name: XAUUSD AutoTrader
+   - Check: "Run whether user is logged on or not"
+   - Check: "Run with highest privileges"
+   - Configure for: Windows 10
+
+4. Triggers tab → New:
+   - Begin the task: "At startup"
+   - OK
+
+5. Triggers tab → New (add a second one):
+   - Begin the task: "At log on"
+   - OK
+
+6. Actions tab → New:
+   - Action: Start a program
+   - Program/script: C:\Users\Administrator\Desktop\xauusd-autotrader\run_silent.vbs
+   ★ Use the ACTUAL path where you put the folder
+
+7. Conditions tab:
+   - UNCHECK "Start the task only if the computer is on AC power"
+   - UNCHECK "Stop if the computer switches to battery power"
+
+8. Settings tab:
+   - CHECK "Run task as soon as possible after a scheduled start is missed"
+   - "If the task fails, restart every": 1 minute
+   - "Attempt to restart up to": 999 times
+   - CHECK "Stop the task if it runs longer than": leave it
+   - "If the running task does not end when requested, force it to stop": CHECK
+
+9. OK → Enter your VPS Windows password when asked
+
+This means: bot runs the second the VPS starts, restarts if it ever crashes.
+
+
+WAY B — Startup Folder (SIMPLE ALTERNATIVE)
+─────────────────────────────────────────────────
+
+1. Press Win+R, type: shell:startup, press Enter
+2. Copy run_silent.vbs (from the project folder) INTO this folder
+3. Done — runs every time you log in
+
+
+── 8. VERIFY EVERYTHING IS WORKING ────────────────────────
+
+1. Reboot the VPS
+2. After Windows boots, open Task Manager → check "python.exe" is running
+3. Open your management bot on Telegram → /start → enter password "Amin123"
+4. You should see the control panel with MT5 status and settings
+5. When the channels post a signal, you'll get a report message
+
+
+── 9. TROUBLESHOOTING ─────────────────────────────────────
+
+Q: "MT5 not connected" / bot shows MT5 as DOWN
+A: Make sure MT5 terminal is OPEN and LOGGED IN on the VPS before
+   starting the bot. The bot requires MT5 running to place trades.
+
+Q: "Telegram session expired"
+A: Delete the file "tg_user_session.session" and run again.
+   It will ask for a new login code.
+
+Q: Channels don't detect
+A: Your Telegram account on the VPS must actually be a member
+   of those channels. Join them manually first.
+
+Q: Orders not placing
+A: Check src/logs/autotrader.log for error messages.
+   Common issues: SL too high (>150 pips), daily budget exceeded,
+   or MT5 symbol not available.
+
+Q: Bot uses too much CPU
+A: Normal usage is ~50-100 MB RAM, <1% CPU.
+
+
+── 10. IMPORTANT NOTES ───────────────────────────────────
+★ NEVER close the MT5 terminal — keep it running 24/7
+★ First trade: test with 0.01 lot until confident
+★ Always run on demo first if unsure
+★ The bot ONLY trades XAUUSD — ignores other symbols
+★ Logs are in: xauusd-autotrader/src/logs/
