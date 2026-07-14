@@ -1,7 +1,7 @@
 @echo off
 title XAUUSD AutoTrader — Update
 echo ============================================
-echo   XAUUSD AutoTrader — Pull & Update
+echo   XAUUSD AutoTrader — Pull ^& Update
 echo ============================================
 cd /d "%~dp0"
 
@@ -14,12 +14,13 @@ echo Pulling latest from GitHub...
 git pull
 
 echo.
-echo Updating Python dependencies...
+echo Updating Python dependencies + fixing numpy...
 call venv\Scripts\activate.bat
-pip install -r requirements.txt -q
+pip install -r requirements.txt --upgrade
+pip install "numpy<2" --force-reinstall
 
 echo.
 echo ============================================
-echo   Done! Restart the bot with run_watchdog.bat
+echo   Done. Restart with run_watchdog.bat
 echo ============================================
 pause
