@@ -215,18 +215,30 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def start_bot(cfg: TraderConfig):
     """Start the management Telegram bot."""
     global _APP
-    app = Application.builder().token(cfg.mgmt_bot_token).build()
+    app = (
+        Application.builder()
+        .token(cfg.mgmt_bot_token)
+        .connect_timeout(30)
+        .read_timeout(30)
+        .write_timeout(30)
+        .pool_timeout(10)
+        .build()
+    )
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(button_handler))
-    # Single text handler — handles auth + setting input
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
 
     _APP = app
-    log.info("Management bot started")
+    log.info("Management bot starting...")
     await app.initialize()
     await app.start()
-    await app.updater.start_polling(allowed_updates=Update.ALL_TYPES)
+    await app.updater.start_polling(
+        allowed_updates=Update.ALL_TYPES,
+        poll_interval=3.0,
+        timeout=30,
+    )
+    log.info("Management bot polling started")
 
 
 async def stop_bot():

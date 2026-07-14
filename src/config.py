@@ -37,6 +37,7 @@ class TraderConfig:
     mgmt_bot_token: str = ""
     mgmt_admin_ids: list = field(default_factory=list)
     mgmt_password: str = "Amin123"
+    # ── Runtime ──
     bot_active: bool = True
     daily_sl_hit: float = 0.0
     daily_sl_reset_date: str = ""
